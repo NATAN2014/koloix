@@ -1,0 +1,102 @@
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Kółko i krzyżyk</title>
+    <style>
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-gap: 10px;
+            width: 320px;
+            margin: 0 auto;
+        }
+        
+        .board .cell {
+            border: 1px solid black;
+            width: 100px;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            cursor: pointer;
+        }
+
+        #message {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 24px;
+        }
+    </style>
+</head>
+<body>
+    <div class="board"></div>
+    <div id="message"></div>
+    <script>
+        // Tworzenie planszy
+        const board = document.querySelector('.board');
+        const message = document.getElementById('message');
+        let currentPlayer = 'X';
+        const cells = Array.from({ length: 9 }).fill(null);
+
+        cells.forEach((_, index) => {
+            const cell = document.createElement('div');
+            cell.classList.add('cell');
+            cell.addEventListener('click', () => handleCellClick(index));
+            board.appendChild(cell);
+        });
+
+        // Możliwe kombinacje wygrywające
+        const winningCombinations = [
+            [0, 1, 2],
+            [3, 4, 5],
+            [6, 7, 8],
+            [0, 3, 6],
+            [1, 4, 7],
+            [2, 5, 8],
+            [0, 4, 8],
+            [2, 4, 6]
+        ];
+
+        let gameActive = true;
+        let moves = 0;
+
+        function handleCellClick(cellIndex) {
+            const clickedCell = cells[cellIndex];
+
+            // Sprawdzanie czy komórka jest pusta i czy gra jest aktywna
+            if (clickedCell === null && gameActive) {
+                cells[cellIndex] = currentPlayer;
+                const currentCell = board.children[cellIndex];
+                currentCell.textContent = currentPlayer;
+                currentCell.style.color = currentPlayer === 'X' ? 'blue' : 'red';
+                moves++;
+
+                // Sprawdzanie wygranej
+                if (checkWin(currentPlayer)) {
+                    message.textContent = `Gracz ${currentPlayer} wygrał!`;
+                    gameActive = false;
+                    return;
+                }
+
+                // Sprawdzanie remisu
+                if (moves === 9) {
+                    message.textContent = 'Remis!';
+                    gameActive = false;
+                    return;
+                }
+
+                currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+            }
+        }
+
+        function checkWin(player) {
+            return winningCombinations.some(combination => {
+                return combination.every(index => cells[index] === player);
+            });
+        }
+    </script>
+</body>
+</html>
